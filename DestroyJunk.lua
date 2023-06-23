@@ -1,4 +1,4 @@
-﻿-- Destroy junk items and filter out bot messages
+-- Destroy junk items
 -- written by X'Genesis Qhulut
 -- November 2022
 
@@ -6,12 +6,14 @@
 -- plus items listed below in otherJunk which tend to drop in instances but are
 -- effectively junk when I am trying to fill up my bags with blue/green items.
 
--- It destroys a maximum of 5 items, so if you are close to a vendor you don't throw away
+-- It destroys a maximum of ITEM_LIMIT items, so if you are close to a vendor you don't throw away
 -- a lot of stuff that might make a few gold.
 
 local YELLOW_TEXT = '|cFFFFFF00' -- (format is |caarrggbb where aa is alpha and should be FF)
 -- to detect poor quality items
 local GREY_COLOUR = "ff9d9d9d"
+
+local ITEM_LIMIT = 5   -- max number to destroy each time, make zero for no limit
 
 -- Normal (quality 1) items to also destroy.
 -- These are Lua patterns however we add ^ to the start and $ to the end for you.
@@ -27,11 +29,11 @@ local otherJunk = {
   -- "Scroll of [SIP]%a+ [IXV]+",  -- Stamina, Strength, Intellect, Protection, Spirit -- exclude "Mizrael"
   "Slimy Murloc Scale",
   "Murloc Fin",
- -- "Murloc Eye",
+  "Murloc Eye",
   "Shiny Fish Scales",
   "Flask of Oil",
   "Fish Oil",
---  "Boar Intestines",
+  "Boar Intestines",
   "Delicious Cave Mold",
   "Mystery Meat",
   "Raw Black Truffle",
@@ -97,16 +99,16 @@ function destroyJunk()
           end -- if
           if (quality == 0 or  -- poor quality
              (quality == -1 and colour == GREY_COLOUR and linkType == "item"))
-            and count < 5  -- only destroy 5 at a time to save money
+            and (count < ITEM_LIMIT or ITEM_LIMIT == 0) -- only destroy ITEM_LIMIT at a time to save money
             then  -- if poor quality
             --print ("Link is ", string.gsub (itemLink, "|", "`"))
             print ("Destroying " .. itemLink)
             PickupContainerItem(bag, slot)
             DeleteCursorItem()
             count = count + 1
-            if count >= 5 then
-              print ("Destroyed 5 items, stopping now.")
-            end -- if done 5 items
+            if count >= ITEM_LIMIT and ITEM_LIMIT ~= 0 then
+              print ("Destroyed " .. ITEM_LIMIT .. " items, stopping now.")
+            end -- if done ITEM_LIMIT items
           end  -- if poor quality
         end -- if item in slot
       end -- for each slot
