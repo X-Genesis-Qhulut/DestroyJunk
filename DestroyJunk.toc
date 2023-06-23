@@ -1,0 +1,10 @@
+## Interface: 11305
+
+## Title: Destroy Junk
+## Notes: When commanded destroys all junk items in inventory
+## Author: X'Genesis Qhulut
+## Version: 1.0
+## SavedVariables: DestroyJunk
+## Dependencies:
+DestroyJunk.lua
+DestroyJunk.xml
