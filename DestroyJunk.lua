@@ -1,8 +1,8 @@
--- Destroy junk items
+-- Destroy junk items on request, and sell junk items to vendor automatically
 -- written by X'Genesis Qhulut
 -- November 2022
 
--- This destroys "gray" (poor quality) items in your bags (not your backpack)
+-- This destroys "gray" (poor quality) items in your bags
 -- plus items listed below in otherJunk which tend to drop in instances but are
 -- effectively junk when I am trying to fill up my bags with blue/green items.
 
@@ -19,32 +19,36 @@ local ITEM_LIMIT = 5   -- max number to destroy each time, make zero for no limi
 -- These are Lua patterns however we add ^ to the start and $ to the end for you.
 
 local otherJunk = {
-  "Tender Wolf Meat",
+  "Alterac Swiss",
+  "Black Diamond",
+  "Boar Intestines",
+  "Coal",  -- warning: needed for Thorium Brotherhood
+  "Cured Ham Steak",
+  "Delicious Cave Mold",
+  "Dried King Bolete",
+  "Fine Aged Cheddar",
+  "Fish Oil",
+  "Flask of Oil",
+  "Heavy Stone",
+  "Homemade Cherry Pie",
+  "Moonberry Juice",
+  "Moon Harvest Pumpkin",
+  "Morning Glory Dew",  -- not at level 45
+  "Murloc Eye",
+  "Murloc Fin",
+  "Mystery Meat",
+-- "Nightcrawlers",
+  "Raw Black Truffle",
+  "Red Wolf Meat",
   "Red Wolf Meat",
  -- "Roasted Quail",
-  "Morning Glory Dew",  -- not at level 45
-  "Cured Ham Steak",
-  "Wicked Claw",
-  "Coal",  -- needed for Thorium Brotherhood
   -- "Scroll of [SIP]%a+ [IXV]+",  -- Stamina, Strength, Intellect, Protection, Spirit -- exclude "Mizrael"
-  "Slimy Murloc Scale",
-  "Murloc Fin",
-  "Murloc Eye",
   "Shiny Fish Scales",
-  "Flask of Oil",
-  "Fish Oil",
-  "Boar Intestines",
-  "Delicious Cave Mold",
-  "Mystery Meat",
-  "Raw Black Truffle",
-  "Fine Aged Cheddar",
-  "Dried King Bolete",
--- "Nightcrawlers",
-  "Homemade Cherry Pie",
-  "Red Wolf Meat",
-  "Black Diamond",
+  "Slimy Murloc Scale",
   "Soft Banana Bread",
+  "Tender Wolf Meat",
   "Unadorned Seal of Ascension",
+  "Wicked Claw",
 
   -- add more here
 
@@ -124,6 +128,47 @@ function destroyJunk()
   end -- if
   end  -- function destroyJunk
 
+function sellJunk(event)
+  local count = 0
+	for bag = 0, 4 do  -- 0 is backpack, 1 to 4 is each of the 4 bags
+  	local slots = GetContainerNumSlots(bag)  -- find how many slots in container
+		if slots then
+			for slot = 1, slots do
+        local texture, itemCount, locked, quality = GetContainerItemInfo(bag, slot)
+        -- quality will be nil if there is no item in that slot
+        if quality then
+          local itemLink = GetContainerItemLink(bag, slot)
+          local _, _, colour, linkType, itemID = string.find (itemLink, "^|c(%x+)|?H?([^:]+):(%d+)")
+          -- some stuff like "Dripping Spider Mandible" had a quality of -1 for some reason
+          local _, _, name = string.find (itemLink, "|h%[(.-)%]|")
+          -- check other items if quality white or less
+          if quality <= 1 then
+            for k, v in ipairs (otherJunk) do
+              if string.find (name, "^" .. v .. "$") then
+                quality = 0
+                break  -- done with checking names
+              end -- if match found
+            end -- for
+          end -- if
+          if quality == 0 or  -- poor quality
+            (quality == -1 and colour == GREY_COLOUR and linkType == "item") then  -- if poor quality
+            --print ("Link is ", string.gsub (itemLink, "|", "`"))
+            print ("Selling " .. itemLink)
+						UseContainerItem (bag, slot)
+            count = count + 1
+          end  -- if poor quality
+        end -- if item in slot
+      end -- for each slot
+		end  -- if container exists
+	end -- for each container
+  local s = 's'
+  if count == 1 then
+    s = ''
+  end -- if
+  print (count .. " junk item" .. s .. " sold.")
+end  -- function sellJunk
+
+
 local function slashHandler (msg)
   if msg and msg ~= "" then
     msg = trim (string.lower (msg))
@@ -148,6 +193,20 @@ function DestroyJunkInit()
   -- set up a slash command handler
   SLASH_DESTROYJUNK1 = "/dj"
   SlashCmdList["DESTROYJUNK"] = slashHandler
+	this:RegisterEvent("MERCHANT_SHOW");
   print ("To destroy your junk:  /dj destroy")
+  print ("Poor quality items will automatically be sold at a vendor")
+
 end -- end of DestroyJunkInit
 
+function DestroyJunkEventHandler(event)
+  sellJunk (event)
+end  -- function DestroyJunkEventHandler
+
+function DestroyJunkEvent(...)
+
+  local result, err = pcall (DestroyJunkEventHandler, unpack (arg))
+  if not result then
+    print (YELLOW_TEXT .. "Error in DestroyJunkEventHandler: " .. err)
+  end -- if failure
+end -- DestroyJunkEvent

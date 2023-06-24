@@ -7,7 +7,7 @@
     DestroyJunkInit();
    </OnLoad>
    <OnEvent>
-      DestroyJunk_OnEvent(event);
+      DestroyJunkEvent(event);
     </OnEvent>
 
   </Scripts>

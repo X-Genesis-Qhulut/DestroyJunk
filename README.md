@@ -15,42 +15,46 @@ Just install this and then type:
 /dj destroy
 ```
 
-Without warning, gray (poor quality) items, **and** ones listed in the DestroyJunk.lua file will be destroyed. They cannot be retrieved.
+Without warning, gray (poor quality) items, **and** WHITE ones listed in the DestroyJunk.lua file will be destroyed. They cannot be retrieved.
 
 ---
 
 ## Extra junk that will be destroyed
 
-The list of "white" items that are also destroyed looks like this:
+The list of "white" items that are also destroyed looks like this (in alphabetic order):
 
 ```lua
 local otherJunk = {
-  "Tender Wolf Meat",
+  "Alterac Swiss",
+  "Black Diamond",
+  "Boar Intestines",
+  "Coal",  -- warning: needed for Thorium Brotherhood
+  "Cured Ham Steak",
+  "Delicious Cave Mold",
+  "Dried King Bolete",
+  "Fine Aged Cheddar",
+  "Fish Oil",
+  "Flask of Oil",
+  "Heavy Stone",
+  "Homemade Cherry Pie",
+  "Moonberry Juice",
+  "Moon Harvest Pumpkin",
+  "Morning Glory Dew",  -- not at level 45
+  "Murloc Eye",
+  "Murloc Fin",
+  "Mystery Meat",
+-- "Nightcrawlers",
+  "Raw Black Truffle",
+  "Red Wolf Meat",
   "Red Wolf Meat",
  -- "Roasted Quail",
-  "Morning Glory Dew",  -- not at level 45
-  "Cured Ham Steak",
-  "Wicked Claw",
-  "Coal",  -- warning, needed for Thorium Brotherhood
   -- "Scroll of [SIP]%a+ [IXV]+",  -- Stamina, Strength, Intellect, Protection, Spirit -- exclude "Mizrael"
-  "Slimy Murloc Scale",
-  "Murloc Fin",
-  "Murloc Eye",
   "Shiny Fish Scales",
-  "Flask of Oil",
-  "Fish Oil",
-  "Boar Intestines",
-  "Delicious Cave Mold",
-  "Mystery Meat",
-  "Raw Black Truffle",
-  "Fine Aged Cheddar",
-  "Dried King Bolete",
--- "Nightcrawlers",
-  "Homemade Cherry Pie",
-  "Red Wolf Meat",
-  "Black Diamond",
+  "Slimy Murloc Scale",
   "Soft Banana Bread",
+  "Tender Wolf Meat",
   "Unadorned Seal of Ascension",
+  "Wicked Claw",
 
   -- add more here
 
@@ -102,7 +106,7 @@ Make the limit some other number (eg. 10) or zero for no limit to how much it wi
 
 * Click on "Download ZIP"
 
-* Unzip the resulting .zip file into your WoW folder: /Interface/AddOns/
+* Unzip the resulting .zip file (DestroyJunk-master.zip) into your WoW Interface -> Addons folder: (Install folder)/Interface/AddOns/
 
 * Rename the folder "DestroyJunk-master" to be "DestroyJunk"
 
