@@ -5,10 +5,11 @@
 This is intended for when you are running dungeons on Vanilla (or Classic) WoW - and your bags are filling up with useless
 junk that is taking room that you want for "green" or "blue" items.
 
-It also has the functionality inspired by the "CrapAway" plugin. If you visit a vendor it automatically sells those
+It also has the functionality inspired by the "CrapAway" addon. If you visit a vendor it automatically sells those
 same items (gray items, and items in the list described below). This is useful while levelling, as you kill mobs you
 may find your bags full of junk, and it is tedious to sell them one-by-one at the vendor.
 
+This was specifically tested with WoW (Vanilla) client 1.12.1 (5875) Release. However I think it also works with the WoW Classic client.
 
 ---
 
@@ -107,6 +108,14 @@ local ITEM_LIMIT = 5
 ```
 
 Make the limit some other number (eg. 10) or zero for no limit to how much it will destroy.
+
+---
+
+## Warning sound
+
+If destroying, and there is nothing to destroy, it plays the sound SOUND_TO_PLAY (currently "igPVPUpdate") as an audible warning that trying to destroy your junk did not reduce your inventory. Change that line to some other sound if you want.
+
+Other sounds you might play can be found at [WoWWiki - API PlaySound](https://wowwiki-archive.fandom.com/wiki/API_PlaySound).
 
 
 ---

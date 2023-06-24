@@ -14,6 +14,7 @@ local YELLOW_TEXT = '|cFFFFFF00' -- (format is |caarrggbb where aa is alpha and 
 local GREY_COLOUR = "ff9d9d9d"
 
 local ITEM_LIMIT = 5   -- max number to destroy each time, make zero for no limit
+local SOUND_TO_PLAY = "igPVPUpdate"  -- sound to play if could not destroy anything
 
 -- Normal (quality 1) items to also destroy.
 -- These are Lua patterns however we add ^ to the start and $ to the end for you.
@@ -76,95 +77,91 @@ local function print(...)
   DEFAULT_CHAT_FRAME:AddMessage(s, 1.0, 0.2, 0.55)
 end -- print
 
+-- returns 's' if count is not one, otherwise an empty string
+local function plural (count)
+  if count == 1 then
+    return ''
+  else
+    return 's'
+  end -- if
+end -- plural
 
+-- determines if a particular inventory bag and slot contains a junk item
+-- if so, returns true and the item link, so it can be displayed
+-- if not, returns false
 
+local function isItJunk (bag, slot)
+  local texture, itemCount, locked, quality = GetContainerItemInfo(bag, slot)
+  if not quality then
+    return false
+  end -- if no item in that slot
+
+  local itemLink = GetContainerItemLink(bag, slot)
+  local _, _, colour, linkType, itemID = string.find (itemLink, "^|c(%x+)|?H?([^:]+):(%d+)")
+  -- some stuff like "Dripping Spider Mandible" had a quality of -1 for some reason
+  local _, _, name = string.find (itemLink, "|h%[(.-)%]|")
+  -- check other items if quality white or less
+  if quality <= 1 then
+    for k, v in ipairs (otherJunk) do
+      if string.find (name, "^" .. v .. "$") then
+        quality = 0
+        break  -- done with checking names
+      end -- if match found
+    end -- for
+  end -- if
+
+  if (quality == 0 or  -- poor quality
+     (quality == -1 and colour == GREY_COLOUR and linkType == "item")) then
+    return true, itemLink
+  else
+    return false
+  end -- if
+
+end -- isItJunk
+
+-- here when "/dj destroy" is typed
 function destroyJunk()
   local count = 0
 	for bag = 0, 4 do  -- 0 is backpack, 1 to 4 is each of the 4 bags
   	local slots = GetContainerNumSlots(bag)  -- find how many slots in container
 		if slots then
 			for slot = 1, slots do
-        local texture, itemCount, locked, quality = GetContainerItemInfo(bag, slot)
-        -- quality will be nil if there is no item in that slot
-        if quality then
-          local itemLink = GetContainerItemLink(bag, slot)
-          local _, _, colour, linkType, itemID = string.find (itemLink, "^|c(%x+)|?H?([^:]+):(%d+)")
-          -- some stuff like "Dripping Spider Mandible" had a quality of -1 for some reason
-          local _, _, name = string.find (itemLink, "|h%[(.-)%]|")
-          -- check other items if quality white or less
-          if quality <= 1 then
-            for k, v in ipairs (otherJunk) do
-              if string.find (name, "^" .. v .. "$") then
-                quality = 0
-                break  -- done with checking names
-              end -- if match found
-            end -- for
-          end -- if
-          if (quality == 0 or  -- poor quality
-             (quality == -1 and colour == GREY_COLOUR and linkType == "item"))
-            and (count < ITEM_LIMIT or ITEM_LIMIT == 0) -- only destroy ITEM_LIMIT at a time to save money
-            then  -- if poor quality
-            --print ("Link is ", string.gsub (itemLink, "|", "`"))
-            print ("Destroying " .. itemLink)
-            PickupContainerItem(bag, slot)
-            DeleteCursorItem()
-            count = count + 1
-            if count >= ITEM_LIMIT and ITEM_LIMIT ~= 0 then
-              print ("Destroyed " .. ITEM_LIMIT .. " items, stopping now.")
-            end -- if done ITEM_LIMIT items
-          end  -- if poor quality
-        end -- if item in slot
+        local junk, itemLink = isItJunk (bag, slot)
+        if junk and (count < ITEM_LIMIT or ITEM_LIMIT == 0) then
+          print ("Destroying " .. itemLink)
+          PickupContainerItem(bag, slot)
+          DeleteCursorItem()
+          count = count + 1
+          if count >= ITEM_LIMIT and ITEM_LIMIT ~= 0 then
+            print ("Destroyed " .. ITEM_LIMIT .. " items, stopping now.")
+          end -- if done ITEM_LIMIT items
+        end  -- if poor quality
       end -- for each slot
 		end  -- if container exists
 	end -- for each container
-  local s = 's'
-  if count == 1 then
-    s = ''
-  end -- if
-  print (count .. " junk item" .. s .. " destroyed.")
-  if count <= 0 then  -- if nothing destroyed, warn them
-    PlaySound ("igPVPUpdate")
+  print (count .. " junk item" .. plural (count) .. " destroyed.")
+  if count <= 0 and SOUND_TO_PLAY then  -- if nothing destroyed, warn them
+    PlaySound (SOUND_TO_PLAY)
   end -- if
   end  -- function destroyJunk
 
+-- here when visiting a vendor
 function sellJunk(event)
   local count = 0
 	for bag = 0, 4 do  -- 0 is backpack, 1 to 4 is each of the 4 bags
   	local slots = GetContainerNumSlots(bag)  -- find how many slots in container
 		if slots then
 			for slot = 1, slots do
-        local texture, itemCount, locked, quality = GetContainerItemInfo(bag, slot)
-        -- quality will be nil if there is no item in that slot
-        if quality then
-          local itemLink = GetContainerItemLink(bag, slot)
-          local _, _, colour, linkType, itemID = string.find (itemLink, "^|c(%x+)|?H?([^:]+):(%d+)")
-          -- some stuff like "Dripping Spider Mandible" had a quality of -1 for some reason
-          local _, _, name = string.find (itemLink, "|h%[(.-)%]|")
-          -- check other items if quality white or less
-          if quality <= 1 then
-            for k, v in ipairs (otherJunk) do
-              if string.find (name, "^" .. v .. "$") then
-                quality = 0
-                break  -- done with checking names
-              end -- if match found
-            end -- for
-          end -- if
-          if quality == 0 or  -- poor quality
-            (quality == -1 and colour == GREY_COLOUR and linkType == "item") then  -- if poor quality
-            --print ("Link is ", string.gsub (itemLink, "|", "`"))
-            print ("Selling " .. itemLink)
-						UseContainerItem (bag, slot)
-            count = count + 1
-          end  -- if poor quality
-        end -- if item in slot
+        local junk, itemLink = isItJunk (bag, slot)
+        if junk then
+          print ("Selling " .. itemLink)
+          UseContainerItem (bag, slot)
+          count = count + 1
+        end  -- if poor quality
       end -- for each slot
 		end  -- if container exists
 	end -- for each container
-  local s = 's'
-  if count == 1 then
-    s = ''
-  end -- if
-  print (count .. " junk item" .. s .. " sold.")
+  print (count .. " junk item" .. plural (count) .. " sold.")
 end  -- function sellJunk
 
 
@@ -194,7 +191,7 @@ function DestroyJunkInit()
   SlashCmdList["DESTROYJUNK"] = slashHandler
 	this:RegisterEvent("MERCHANT_SHOW");
   print ("To destroy your junk:  /dj destroy")
-  print ("Poor quality items will automatically be sold at a vendor")
+  print ("Junk will automatically be sold at a vendor.")
 
 end -- end of DestroyJunkInit
 
