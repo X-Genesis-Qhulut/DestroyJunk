@@ -5,17 +5,24 @@
 This is intended for when you are running dungeons on Vanilla (or Classic) WoW - and your bags are filling up with useless
 junk that is taking room that you want for "green" or "blue" items.
 
+It also has the functionality inspired by the "CrapAway" plugin. If you visit a vendor it automatically sells those
+same items (gray items, and items in the list described below). This is useful while levelling, as you kill mobs you
+may find your bags full of junk, and it is tedious to sell them one-by-one at the vendor.
+
+
 ---
 
 ## How to use
 
-Just install this and then type:
+Just install this and then when your bags have filled up, type:
 
 ```
 /dj destroy
 ```
 
-Without warning, gray (poor quality) items, **and** WHITE ones listed in the DestroyJunk.lua file will be destroyed. They cannot be retrieved.
+Without warning, gray (poor quality) items, **and** normal quality (white) ones listed in the DestroyJunk.lua file will be destroyed. They cannot be retrieved.
+
+Also, if you visit a vendor the same items will be sold (not destroyed) automatically when you open the vendor window.
 
 ---
 
@@ -46,7 +53,6 @@ local otherJunk = {
 -- "Nightcrawlers",
   "Raw Black Truffle",
   "Red Wolf Meat",
-  "Red Wolf Meat",
  -- "Roasted Quail",
   -- "Scroll of [SIP]%a+ [IXV]+",  -- Stamina, Strength, Intellect, Protection, Spirit -- exclude "Mizrael"
   "Shiny Fish Scales",
@@ -75,6 +81,13 @@ local otherJunk = {
 Or, add more items, or comment-out ones you want to keep. While you are levelling, for example, you may want to keep "Fine Aged Cheddar", but not when you are level 60 and running dungeons. Lines starting with "--" are comments, and therefore inactive.
 
 The items in the list are Lua patterns (similar to regular expression) so for example "Scroll of [SIP]%a+ [IXV]+" would match "Scroll of Stamina IV". If you wanted to match different sorts of wolf meat you might use: "%a+ Wolf Meat" because "%a+" matches one or more alphabetic characters.
+
+Some information about Lua patterns [here](https://www.lua.org/pil/20.2.html).
+
+The code automatically puts "^" at the start of each item and "$" at the end, so the item has to match exactly what is in the pattern (and not have the
+pattern be *part* of the item name).
+
+If you are levelling an alt you may want to check that you aren't destroying or selling items that are useful at that level. For example, "Tender Wolf Meat" is useful for cooking, if you happen to be at that level in your cooking profession.
 
 ---
 

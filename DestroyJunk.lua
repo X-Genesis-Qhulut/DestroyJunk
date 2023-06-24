@@ -40,8 +40,7 @@ local otherJunk = {
 -- "Nightcrawlers",
   "Raw Black Truffle",
   "Red Wolf Meat",
-  "Red Wolf Meat",
- -- "Roasted Quail",
+-- "Roasted Quail",
   -- "Scroll of [SIP]%a+ [IXV]+",  -- Stamina, Strength, Intellect, Protection, Spirit -- exclude "Mizrael"
   "Shiny Fish Scales",
   "Slimy Murloc Scale",
